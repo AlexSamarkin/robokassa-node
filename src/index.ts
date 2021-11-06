@@ -1,16 +1,7 @@
-import { Robokassa } from "./robokassa";
-import type { RobokassaConfig, SNO, Order, PaymentObject, PaymentMethod, PaymentTax, ReceiptItem } from "./types";
+import { Robokassa } from './robokassa';
+import type { RobokassaConfig, Order, ReceiptItem } from './types';
+import { SNO, PaymentObject, PaymentMethod, PaymentTax } from './types';
 
-export {
-    Robokassa,
-};
+export { Robokassa };
 
-export type {
-    RobokassaConfig,
-    ReceiptItem,
-    Order,
-    SNO,
-    PaymentTax,
-    PaymentMethod,
-    PaymentObject
-};
+export type { RobokassaConfig, ReceiptItem, Order, SNO, PaymentTax, PaymentMethod, PaymentObject };
