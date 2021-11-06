@@ -1,10 +1,9 @@
 {
   "name": "robokassa-node",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Robokassa Package for NodeJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "files": [
     "dist/**/*"
   ],
