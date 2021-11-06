@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/AlexSamarkin/robokassa-node.git"
   },
   "keywords": [],
   "author": "Alex Samarkin <alexgui@yandex.ru> (https://alexsamarkin.com/)",
