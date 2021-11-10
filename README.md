@@ -13,11 +13,6 @@ npm install robokassa-node --save
 Всю документацию по работе с API Робокассы можно найти здесь:
 https://docs.robokassa.ru
 
-Поддерживаются методы:
-- #### async generatePaymentLink(order: Order): Promise<string> - возвращает ссылку, ведущую на страницу оплаты
-- #### async checkPayment(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата, в зависимости от переданных Робокассой параметров.
-- #### async checkPaymentSuccessURL(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата при редиректе Робокассой на указанный в настройках URL успешной оплаты.
-
 ```typescript
 
 import { Robokassa } from 'robokassa-node;
@@ -31,6 +26,86 @@ const config: RobokassaConfig = {
 }
 
 const robokassa = new Robokassa(config);
+```
+
+Поддерживаются методы:
+- #### async generatePaymentLink(order: Order): Promise<string> - возвращает ссылку, ведущую на страницу оплаты
+```typescript
+   const order: Order = {
+        outSum: 1000,
+        additionalParams: {
+            orderId: 'order_1',
+        },
+        description: `Описание заказа`,
+        email: 'your@email.com',
+        items: [
+            {
+                sno: SNO.USN_INCOME,
+                name: `Товар "Товар 1"`,
+                quantity: 1,
+                sum: "1000.00",
+                tax: PaymentTax.NONE,
+                payment_method: PaymentMethod.FULL_PREPAYMENT,
+                payment_object: PaymentObject.COMMODITY,
+            },
+        ],
+   };
+
+   const paymentLink = await robokassa.generatePaymentLink(order);
+```
+- #### async checkPayment(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата, в зависимости от переданных Робокассой параметров.
+```typescript
+   const order: Order = {
+        outSum: 1000,
+        additionalParams: {
+            orderId: 'order_1',
+        },
+        description: `Описание заказа`,
+        email: 'your@email.com',
+        items: [
+            {
+                sno: SNO.USN_INCOME,
+                name: `Товар "Товар 1"`,
+                quantity: 1,
+                sum: "1000.00",
+                tax: PaymentTax.NONE,
+                payment_method: PaymentMethod.FULL_PREPAYMENT,
+                payment_object: PaymentObject.COMMODITY,
+            },
+        ],
+   };
+
+   const invId = 1;
+   const signature = 'SIGNATRUE_FROM_ROBOKASSA_RESPONSE';
+
+   const isSuccessfull = await robokassa.checkPayment(signature, invId, order);
+```
+- #### async checkPaymentSuccessURL(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата при редиректе Робокассой на указанный в настройках URL успешной оплаты.
+```typescript
+   const order: Order = {
+        outSum: 1000,
+        additionalParams: {
+            orderId: 'order_1',
+        },
+        description: `Описание заказа`,
+        email: 'your@email.com',
+        items: [
+            {
+                sno: SNO.USN_INCOME,
+                name: `Товар "Товар 1"`,
+                quantity: 1,
+                sum: "1000.00",
+                tax: PaymentTax.NONE,
+                payment_method: PaymentMethod.FULL_PREPAYMENT,
+                payment_object: PaymentObject.COMMODITY,
+            },
+        ],
+   };
+
+   const invId = 1;
+   const signature = 'SIGNATRUE_FROM_ROBOKASSA_RESPONSE';
+
+   const isSuccessfull = await robokassa.checkPaymentSuccessURL(signature, invId, order);
 ```
 
 # Отказ от ответственности
