@@ -1,10 +1,14 @@
 import * as crypto from 'crypto-js';
-import { Order, RobokassaConfig } from './types';
+import { Order, ReceiptItem, RobokassaConfig, SNO } from './types';
 import { BASE_URL } from './constants';
 
 export class Robokassa {
   private static BASE_URL = BASE_URL;
-  constructor(private readonly config: RobokassaConfig) {}
+  private readonly additionalParamPrefix: string;
+
+  constructor(private readonly config: RobokassaConfig) {
+    this.additionalParamPrefix = config.additionalParamPrefix ?? 'Shp_';
+  }
 
   public async generatePaymentLink(order: Order): Promise<string> {
     const url = new URL(Robokassa.BASE_URL);
@@ -23,23 +27,20 @@ export class Robokassa {
       url.searchParams.append('ExpirationDate', order.expirationDate.toISOString());
     }
 
-    if (order.outSumCurrency) {
-      url.searchParams.append('OutSumCurrency', order.outSumCurrency);
-    }
-
-    if (isTest) {
-      url.searchParams.append('IsTest', isTest);
-    }
+    url.searchParams.append('IsTest', isTest);
 
     if (order.additionalParams) {
       Object.keys(order.additionalParams).forEach((key: string) => {
-        url.searchParams.append(`Shp_${key}`, order.additionalParams[key]);
+        url.searchParams.append(`${this.additionalParamPrefix}${key}`, order.additionalParams[key]);
       });
     }
 
     const signature = await this.createSignature(order);
 
-    url.searchParams.append('Receipt', Robokassa.generateReceiptString(order));
+    if (order.items?.length) {
+      url.searchParams.append('Receipt', Robokassa.generateReceiptString(order));
+    }
+
     url.searchParams.append('SignatureValue', signature);
 
     return url.href;
@@ -47,7 +48,7 @@ export class Robokassa {
 
   public async checkPayment(signature: string, invId: number, order: Order): Promise<boolean> {
     const hashFn = this.getHashAlgoFn();
-    const additionalParams = Robokassa.generateAdditionalParamsString(order);
+    const additionalParams = this.generateAdditionalParamsString(order);
     const hash = await hashFn(`${order.outSum.toFixed(2)}:${invId}:${this.config.passwordTwo}${additionalParams}`);
 
     return hash.toString().toUpperCase() === signature.toUpperCase();
@@ -56,9 +57,7 @@ export class Robokassa {
   public async checkPaymentSuccessURL(signature: string, invId: number, order: Order): Promise<boolean> {
     const hashFn = this.getHashAlgoFn();
     const hash = await hashFn(
-      `${order.outSum.toFixed(2)}:${invId}:${this.config.passwordOne}${Robokassa.generateAdditionalParamsString(
-        order,
-      )}`,
+      `${order.outSum.toFixed(2)}:${invId}:${this.config.passwordOne}${this.generateAdditionalParamsString(order)}`,
     );
 
     return hash.toString().toUpperCase() === signature.toUpperCase();
@@ -66,33 +65,36 @@ export class Robokassa {
 
   private async createSignature(order: Order): Promise<string> {
     const hashFn = this.getHashAlgoFn();
-    const additionalParams = Robokassa.generateAdditionalParamsString(order);
+    const additionalParams = this.generateAdditionalParamsString(order);
+    const receiptString = order.items ? Robokassa.generateReceiptString(order) + ':' : '';
     const sumString = order.outSum.toFixed(2);
     const invIdString = String(order.invId) ?? '';
-    const outSumCurrency = order.outSumCurrency ? `:${order.outSumCurrency}` : '';
     const signature = await hashFn(
-      `${this.config.merchantId}:${sumString}:${invIdString}${outSumCurrency}:${Robokassa.generateReceiptString(
-        order,
-      )}:${this.config.passwordOne}:${additionalParams}`,
+      `${this.config.merchantId}:${sumString}:${invIdString}:${receiptString}${this.config.passwordOne}${additionalParams}`,
     );
 
     return signature.toString();
   }
 
   private static generateReceiptString(order: Order): string {
-    return encodeURIComponent(
-      JSON.stringify({
-        items: order.items,
-      }),
-    );
+    const receipt: { sno?: SNO; items: ReceiptItem[] } = {
+      items: order.items,
+    };
+
+    if (order.sno) {
+      receipt.sno = order.sno;
+    }
+
+    return encodeURIComponent(JSON.stringify(receipt));
   }
 
-  private static generateAdditionalParamsString(order: Order): string {
+  private generateAdditionalParamsString(order: Order): string {
     return order.additionalParams
-      ? Object.keys(order.additionalParams).reduce((accString, paramKey) => {
-          accString += `:Shp_${paramKey}=${order.additionalParams[paramKey]}`;
-          return accString;
-        }, '')
+      ? ':' +
+          Object.keys(order.additionalParams)
+            .sort()
+            .map((key: string) => `${this.additionalParamPrefix}${key}=${order.additionalParams[key]}`)
+            .join(':')
       : '';
   }
 

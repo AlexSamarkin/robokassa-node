@@ -6,6 +6,7 @@ export interface RobokassaConfig {
   isTest?: boolean;
   culture?: 'ru' | 'en';
   encoding?: 'utf-8' | 'win-1251';
+  additionalParamPrefix?: 'shp_' | 'Shp_' | 'SHP_';
 }
 
 export interface Order {
@@ -15,8 +16,8 @@ export interface Order {
   email: string;
   expirationDate?: Date;
   additionalParams?: Record<string, string>;
-  outSumCurrency?: 'USD' | 'EUR' | 'KZT';
   items?: ReceiptItem[];
+  sno?: SNO;
 }
 
 export enum PaymentMethod {
@@ -60,7 +61,6 @@ export enum PaymentTax {
 
 export interface ReceiptItem {
   name: string;
-  sno: SNO;
   quantity: number;
   sum: string;
   payment_method: PaymentMethod;

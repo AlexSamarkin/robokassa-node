@@ -1,5 +1,5 @@
 import { Robokassa } from '../robokassa';
-import { Order, PaymentMethod, PaymentObject, PaymentTax, RobokassaConfig, SNO } from '../types';
+import { Order, PaymentMethod, PaymentObject, PaymentTax, RobokassaConfig } from '../types';
 import * as crypto from 'crypto-js';
 
 let config: RobokassaConfig;
@@ -29,7 +29,6 @@ describe('Robokassa', () => {
         items: [
           {
             name: 'Item 1',
-            sno: SNO.OSN,
             tax: PaymentTax.NONE,
             quantity: 1,
             payment_object: PaymentObject.PAYMENT,
