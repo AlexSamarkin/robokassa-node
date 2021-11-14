@@ -8,6 +8,12 @@ export class Robokassa {
 
   constructor(private readonly config: RobokassaConfig) {
     this.additionalParamPrefix = config.additionalParamPrefix ?? 'Shp_';
+
+    if (config.debug) {
+      console.warn(
+        'You are running robokassa-node in debug mode. You private credentials will be shown in console. Please make sure you disabled debug mode in production',
+      );
+    }
   }
 
   public async generatePaymentLink(order: Order): Promise<string> {
