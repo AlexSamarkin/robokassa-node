@@ -68,7 +68,15 @@ export class Robokassa {
     const additionalParams = this.generateAdditionalParamsString(order);
     const receiptString = order.items ? Robokassa.generateReceiptString(order) + ':' : '';
     const sumString = order.outSum.toFixed(2);
-    const invIdString = String(order.invId) ?? '';
+    const invIdString = String(order.invId ?? '');
+
+    if (this.config.debug) {
+      console.debug(
+        `Signature before hashing: ${this.config.merchantId}:${sumString}:${invIdString}:${receiptString}${this.config.passwordOne}${additionalParams}`,
+      );
+      console.debug(`Hash algo: ${this.config.hashAlgo}`);
+    }
+
     const signature = await hashFn(
       `${this.config.merchantId}:${sumString}:${invIdString}:${receiptString}${this.config.passwordOne}${additionalParams}`,
     );

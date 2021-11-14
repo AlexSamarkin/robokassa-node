@@ -7,6 +7,7 @@ export interface RobokassaConfig {
   culture?: 'ru' | 'en';
   encoding?: 'utf-8' | 'win-1251';
   additionalParamPrefix?: 'shp_' | 'Shp_' | 'SHP_';
+  debug?: boolean;
 }
 
 export interface Order {
