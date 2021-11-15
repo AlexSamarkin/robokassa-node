@@ -53,7 +53,16 @@ const robokassa = new Robokassa(config);
 
 const paymentLink = await robokassa.generatePaymentLink(order);
 ```
-- #### async checkPayment(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата, в зависимости от переданных Робокассой параметров.
+- #### async checkPayment(params: CheckPaymentParams): Promise<boolean> - проверяет, успешно ли прошла оплата, в зависимости от переданных Робокассой параметров.
+###### CheckPaymentParams
+
+| Параметр | Тип | Описание | Обязательный
+| ------ | ------ | ------ | ------ |
+| sum | string | Сумма заказа, которая приходит от Робокассы | Да
+| invId | number | номер заказа в Робокассе, приходит в ответе | Да
+| signature | string | Подпись, приходит из Робоказзы | Да
+| order | Order | Сущность заказа | Да
+
 ```typescript
    const order: Order = {
     outSum: 1000,
@@ -78,9 +87,17 @@ const paymentLink = await robokassa.generatePaymentLink(order);
 const invId = 1;
 const signature = 'SIGNATRUE_FROM_ROBOKASSA_RESPONSE';
 
-const isSuccessfull = await robokassa.checkPayment(signature, invId, order);
+const params = {
+    signature,
+    invId,
+    sum: "1000.000000",
+    order
+}
+
+const isSuccessfull = await robokassa.checkPayment(params);
 ```
 - ###### async checkPaymentSuccessURL(signature: string, invId: number, order: Order): Promise<boolean> - проверяет, успешно ли прошла оплата при редиректе Робокассой на указанный в настройках URL успешной оплаты.
+
 ```typescript
    const order: Order = {
         outSum: 1000,
