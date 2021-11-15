@@ -1,5 +1,5 @@
 import * as crypto from 'crypto-js';
-import { Order, ReceiptItem, RobokassaConfig, SNO } from './types';
+import { CheckPaymentParams, Order, ReceiptItem, RobokassaConfig, SNO } from './types';
 import { BASE_URL } from './constants';
 
 export class Robokassa {
@@ -19,7 +19,7 @@ export class Robokassa {
   public async generatePaymentLink(order: Order): Promise<string> {
     const url = new URL(Robokassa.BASE_URL);
 
-    const isTest = this.config.isTest ? '1' : '0';
+    const isTest = !!this.config.isTest ? '1' : '0';
 
     url.searchParams.append('MerchantLogin', this.config.merchantId);
     url.searchParams.append('Culture', this.config.culture ?? 'ru');
@@ -52,12 +52,16 @@ export class Robokassa {
     return url.href;
   }
 
-  public async checkPayment(signature: string, invId: number, order: Order): Promise<boolean> {
+  public async checkPayment(params: CheckPaymentParams): Promise<boolean> {
     const hashFn = this.getHashAlgoFn();
-    const additionalParams = this.generateAdditionalParamsString(order);
-    const hash = await hashFn(`${order.outSum.toFixed(2)}:${invId}:${this.config.passwordTwo}${additionalParams}`);
+    const additionalParams = this.generateAdditionalParamsString(params.order);
+    const hash = await hashFn(`${params.sum}:${params.invId}:${this.config.passwordTwo}${additionalParams}`);
 
-    return hash.toString().toUpperCase() === signature.toUpperCase();
+    if (this.config.debug) {
+      console.debug(`Params: `, params);
+    }
+
+    return hash.toString().toUpperCase() === params.signature.toUpperCase();
   }
 
   public async checkPaymentSuccessURL(signature: string, invId: number, order: Order): Promise<boolean> {

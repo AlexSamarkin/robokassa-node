@@ -78,3 +78,10 @@ export enum SNO {
   ESN = 'esn',
   PATENT = 'patent',
 }
+
+export interface CheckPaymentParams {
+  sum: string | number;
+  signature: string;
+  invId: number;
+  order: Order;
+}

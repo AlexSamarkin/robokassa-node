@@ -69,11 +69,14 @@ describe('Robokassa', () => {
         return acc;
       }, '');
 
-      const signature = await crypto.MD5(
-        `${order.outSum.toFixed(2)}:${order.invId}:${config.passwordTwo}${additionalParams}`,
-      );
+      const signature = await crypto.MD5(`1000.000000:${order.invId}:${config.passwordTwo}${additionalParams}`);
 
-      const actualResult = await robokassa.checkPayment(signature.toString(), order.invId, order);
+      const actualResult = await robokassa.checkPayment({
+        sum: '1000.000000',
+        order: order,
+        invId: order.invId,
+        signature: signature.toString(),
+      });
 
       expect(actualResult).toBe(true);
     });
@@ -98,7 +101,12 @@ describe('Robokassa', () => {
         `${order.outSum.toFixed(2)}:${order.invId}:${'InvalidPassword2'}${additionalParams}`,
       );
 
-      const actualResult = await robokassa.checkPayment(signature.toString(), order.invId, order);
+      const actualResult = await robokassa.checkPayment({
+        sum: '10.000000',
+        order: order,
+        invId: order.invId,
+        signature: signature.toString(),
+      });
 
       expect(actualResult).toBe(false);
     });
