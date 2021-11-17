@@ -15,7 +15,7 @@ https://docs.robokassa.ru
 
 ```typescript
 
-import { Robokassa } from 'robokassa-node;
+import { Robokassa } from 'robokassa-node';
 import type { RobokassaConfig } from 'robokassa-node';
 
 const config: RobokassaConfig = {
@@ -40,7 +40,6 @@ const robokassa = new Robokassa(config);
     email: 'your@email.com',
     items: [
         {
-            sno: SNO.USN_INCOME,
             name: `Товар "Товар 1"`,
             quantity: 1,
             sum: "1000.00",
@@ -73,7 +72,6 @@ const paymentLink = await robokassa.generatePaymentLink(order);
     email: 'your@email.com',
     items: [
         {
-            sno: SNO.USN_INCOME,
             name: `Товар "Товар 1"`,
             quantity: 1,
             sum: "1000.00",
@@ -108,7 +106,6 @@ const isSuccessfull = await robokassa.checkPayment(params);
         email: 'your@email.com',
         items: [
             {
-                sno: SNO.USN_INCOME,
                 name: `Товар "Товар 1"`,
                 quantity: 1,
                 sum: "1000.00",
@@ -134,12 +131,25 @@ const isSuccessfull = await robokassa.checkPayment(params);
 | merchantId | string | Ваш идентификатор магазина | Да
 | passwordOne | string | Пароль#1 | Да
 | passwordTwo | string | Пароль#2 | Да
-| hashAlgo | enum('MD5', 'SHA1', 'SHA256', 'SHA384', 'SHA512') | Алгоритм шифрования для создания подписи | Да
+| hashAlgo | MD5, SHA1, SHA256, SHA384, SHA512 | Алгоритм шифрования для создания подписи | Да
 | isTest | boolean | Тестовый режим оплаты (по умолчанию - false) | Нет
 | culture | ru, en | | Нет
 | encoding | utf-8, win-1251 | Кодировка | Нет
 | additionalParamPrefix | shp_ , Shp_, SHP_ | Префикс для пользовательских параметров, переданных в ссылку для оплаты | Нет
 | debug | boolean | Режим отладки | Нет
+
+### Order
+
+| Параметр | Тип | Описание | Обязательный
+| ------ | ------ | ------ | ------ |
+| outSum | number | Сумма заказа | Да
+| description | string | Описание заказа | Да
+| invId | number | Идентификатор заказа в Робокассе | Нет
+| email | string | Email покупателя | Да
+| expirationDate | Date | Дата, до которой возможна оплата заказа| Нет
+| additionalParams | Record<string, any> | Дополнительные пользовательские параметры | Нет
+| items | ReceiptItem[] | Массив товаров для фискализации | Нет
+| sno | SNO | Система налогообложениы | Нет
 
 # Отказ от ответственности
 

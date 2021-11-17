@@ -59,6 +59,7 @@ export class Robokassa {
 
     if (this.config.debug) {
       console.debug(`Params: `, params);
+      console.debug(`Hash: ${hash.toString()}`);
     }
 
     return hash.toString().toUpperCase() === params.signature.toUpperCase();
